@@ -1,0 +1,25 @@
+{
+  "weather_event": {
+    "version": "v1",
+    "sentence": [
+      "node_id",
+      "event_id",
+      "timestamp",
+      "event_type",
+      "temperature",
+      "humidity",
+      "pressure"
+    ]
+  },
+  "avis_lite_event": {
+    "version": "v1",
+    "sentence": [
+      "node_id",
+      "event_id",
+      "timestamp",
+      "event_type",
+      "taxonomy",
+      "confidence"
+    ]
+  }
+}
