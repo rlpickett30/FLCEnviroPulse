@@ -1,8 +1,8 @@
 # node_hardware_manager.py
-from utils.node_sht31_driver import read_sht31
-from utils.node_bmp390_driver import read_bmp390
-from utils.node_gps_driver import read_gps
-from utils.node_pps_sync import get_last_pps
+from drivers.node_sht31_driver import read_sht31
+from drivers.node_bmp390_driver import read_bmp390
+from drivers.node_gps_driver import read_gps
+from drivers.node_pps_sync import get_last_pps
 
 def collect_sensor_data():
     data = {

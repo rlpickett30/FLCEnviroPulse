@@ -1,7 +1,7 @@
 # node_telemetry.py
-from utils.node_hardware_manager import collect_sensor_data
-from utils.node_altitude_calibrator import add_altitude_sample, add_pressure_sample, calibrate_altitude, calibrate_pressure_to_altitude
-from utils.node_gps_calibrator import add_gps_sample, calibrate_coordinates
+from node.node_hardware_manager import collect_sensor_data
+from node.node_altitude_calibrator import add_altitude_sample, add_pressure_sample, calibrate_altitude, calibrate_pressure_to_altitude
+from node.node_gps_calibrator import add_gps_sample, calibrate_coordinates
 
 
 def process_telemetry():

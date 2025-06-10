@@ -1,14 +1,37 @@
-# node_time.py
-from utils.node_pps_manager import get_seconds_since_midnight
-from utils.node_time_mode_manager import get_mode
+# scripts/node/node_time.py
 
-def get_timestamp():
+from typing import Optional, Union
+
+from node.node_pps_manager import get_seconds_since_midnight
+from node.node_time_mode_manager import get_mode
+
+
+def get_timestamp() -> Optional[Union[int, float]]:
+    """
+    Compute and return the node’s timestamp based on PPS sync and current mode.
+
+    Modes:
+      - 'lite': integer seconds resolution
+      - 'tdoa': floating-point seconds with sub-second precision
+
+    Returns:
+      int   – seconds since midnight if mode is 'lite'
+      float – seconds since midnight (with fraction) if mode is 'tdoa'
+      None  – if PPS sync is unavailable or mode is unrecognized
+    """
     mode = get_mode()
     seconds = get_seconds_since_midnight()
+
+    # PPS not yet synced
     if seconds is None:
         return None
+
     if mode == "lite":
-        return round(seconds)  # 1-second resolution
+        # round to nearest second, then cast to int
+        return int(round(seconds))
     elif mode == "tdoa":
-        return float(seconds)  # sub-second float precision
-    return None
+        # full precision float
+        return seconds
+    else:
+        # unrecognized mode
+        return None

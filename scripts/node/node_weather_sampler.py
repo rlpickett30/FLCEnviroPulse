@@ -1,5 +1,5 @@
 # node_weather_sampler.py
-from utils.node_hardware_manager import collect_sensor_data
+from node.node_hardware_manager import collect_sensor_data
 
 def sample_weather():
     data = collect_sensor_data()
