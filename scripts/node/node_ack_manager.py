@@ -1,5 +1,11 @@
 # node_ack_manager.py
 
+from node.node_unique_id_manager import acknowledge_event
+
+def handle_ack(ack_payload):
+    acked_uid = ack_payload["uid"]
+    acknowledge_event(acked_uid)
+
 class AckManager:
     def build_response(self, event_obj):
         try:

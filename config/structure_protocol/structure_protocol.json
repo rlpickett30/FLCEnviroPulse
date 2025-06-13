@@ -1,25 +1,102 @@
 {
-  "weather_event": {
-    "version": "v1",
-    "sentence": [
-      "node_id",
-      "event_id",
-      "timestamp",
-      "event_type",
-      "temperature",
-      "humidity",
-      "pressure"
-    ]
+  "ack_retry_event": {
+    "format": ">B I B B B I",
+    "description": "ACK / Retry / Fail response message",
+    "fields": [
+      { "name": "event_type",   "type": "uint8",  "bytes": 1 },
+      { "name": "timestamp",    "type": "uint32", "bytes": 4 },
+      { "name": "type",         "type": "uint8",  "bytes": 1, "map": "ack_retry_map.json" },
+      { "name": "Sresponds_to",  "type": "uint8",  "bytes": 1, "map": "event_type_map.json" },
+      { "name": "node_id",      "type": "uint8",  "bytes": 1 },
+      { "name": "uid",          "type": "uint32", "bytes": 4 }
+    ],
+    "length_bytes": 12
   },
-  "avis_lite_event": {
-    "version": "v1",
-    "sentence": [
-      "node_id",
-      "event_id",
-      "timestamp",
-      "event_type",
-      "taxonomy",
-      "confidence"
-    ]
+
+  "telemetry_event": {
+    "format": ">B I f f H B B H B I",
+    "description": "Node telemetry report including position, altitude, PPS, and GPS quality",
+    "fields": [
+      { "name": "event_type",   "type": "uint8",   "bytes": 1 },
+      { "name": "timestamp",    "type": "uint32",  "bytes": 4 },
+      { "name": "lat",          "type": "float32", "bytes": 4 },
+      { "name": "lon",          "type": "float32", "bytes": 4 },
+      { "name": "altitude",     "type": "uint16",  "bytes": 2 },
+      { "name": "pps_valid",    "type": "uint8",   "bytes": 1 },
+      { "name": "fix_quality",  "type": "uint8",   "bytes": 1 },
+      { "name": "avg_count",    "type": "uint16",  "bytes": 2 },
+      { "name": "node_id",      "type": "uint8",   "bytes": 1 },
+      { "name": "uid",          "type": "uint32",  "bytes": 4 }
+    ],
+    "length_bytes": 24
+  },
+
+  "weather_event": {
+    "format": ">B I f f f B I",
+    "description": "Weather reading message",
+    "fields": [
+      { "name": "event_type", "type": "uint8",  "bytes": 1 },
+      { "name": "timestamp",  "type": "uint32", "bytes": 4 },
+      { "name": "temp",       "type": "float",  "bytes": 4 },
+      { "name": "humidity",   "type": "float",  "bytes": 4 },
+      { "name": "pressure",   "type": "float",  "bytes": 4 },
+      { "name": "node_id",    "type": "uint8",  "bytes": 1 },
+      { "name": "uid",        "type": "uint32", "bytes": 4 }
+    ],
+    "length_bytes": 22
+  },
+
+
+  
+  "init": {
+    "format": ">B I I",
+    "fields": [
+      { "name": "event_type", "type": "uint8",  "bytes": 1 },
+      { "name": "timestamp",  "type": "uint32", "bytes": 4 },
+      { "name": "uid",        "type": "uint32", "bytes": 4 }
+    ],
+    "length_bytes": 9
+  },
+
+  "startup_ack": {
+    "format": ">B I B B B B I",
+    "description": "Node acknowledgment with identity, version, and UID",
+    "fields": [
+      { "name": "event_type", "type": "uint8",  "bytes": 1 },
+      { "name": "timestamp",  "type": "uint32", "bytes": 4 },
+      { "name": "node_id",    "type": "uint8",  "bytes": 1 },
+      { "name": "model",      "type": "uint8",  "bytes": 1, "map": "model_map.json" },
+      { "name": "firmware",   "type": "uint8",  "bytes": 1 },
+      { "name": "version",    "type": "uint8",  "bytes": 1 },
+      { "name": "uid",        "type": "uint32", "bytes": 4 }
+    ],
+    "length_bytes": 13
+  },
+
+  "change_mode": {
+    "format": ">B I B B I",
+    "description": "Gateway instructs node to switch runtime mode",
+    "fields": [
+      { "name": "event_type", "type": "uint8",  "bytes": 1 },
+      { "name": "timestamp",  "type": "uint32", "bytes": 4 },
+      { "name": "mode",       "type": "uint8",  "bytes": 1, "map": "mode_map.json" },
+      { "name": "node_id",    "type": "uint8",  "bytes": 1 },
+      { "name": "uid",        "type": "uint32", "bytes": 4 }
+    ],
+    "length_bytes": 11
+  },
+
+  "avis_event": {
+    "format": ">B I H B B I",
+    "description": "Bird detection report with timestamp, taxonomy, confidence, and UID",
+    "fields": [
+      { "name": "event_type",  "type": "uint8",  "bytes": 1 },
+      { "name": "timestamp",   "type": "uint32", "bytes": 4 },
+      { "name": "taxonomy",    "type": "uint16", "bytes": 2, "map": "taxonomy_map.json" },
+      { "name": "confidence",  "type": "uint8",  "bytes": 1, "map": "confidence_scale_map.json" },
+      { "name": "node_id",     "type": "uint8",  "bytes": 1 },
+      { "name": "uid",         "type": "uint32", "bytes": 4 }
+    ],
+    "length_bytes": 13
   }
 }

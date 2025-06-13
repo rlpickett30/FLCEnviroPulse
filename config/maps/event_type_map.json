@@ -1,10 +1,9 @@
 {
-  "0": "weather_event",
-  "1": "avis_lite_event",
-  "2": "avis_tdoa_event",
-  "3": "telemetry_event",
-  "4": "time_sync_event",
-  "5": "ack_event",
-  "6": "retry_event",
-  "7": "startup_event"
+  "avis_event": 1,
+  "telemetry_event": 2,
+  "weather_event": 3,
+  "startup_ack": 4,
+  "init": 5,
+  "change_mode": 6,
+  "ack_retry_event": 7
 }

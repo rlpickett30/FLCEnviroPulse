@@ -1,0 +1,7 @@
+{
+  "none": 0,
+  "avis_lite": 1,
+  "avis_tdoa": 2,
+  "telemetry": 3,
+  "weather": 4
+}

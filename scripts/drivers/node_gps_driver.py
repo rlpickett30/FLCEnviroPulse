@@ -38,3 +38,4 @@ def read_gps():
         "altitude_m": gps.altitude_m,
         "timestamp": time.time()
     }
+

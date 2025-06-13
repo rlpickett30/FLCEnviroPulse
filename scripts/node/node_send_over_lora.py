@@ -1,6 +1,10 @@
 # node_send_over_lora.py
 
 import sys
+from node.node_unique_id_manager import UniqueIdManager
+from node.node_unique_id_manager import store_event
+
+uid_gen = UniqueIdManager(persistence_file="config/uid_counter.txt")
 
 try:
     import serial
@@ -10,26 +14,20 @@ except ImportError:
     SERIAL_AVAILABLE = False
 
 class LoRaSender:
-    def __init__(self, port="/dev/ttyS0", baudrate=9600, timeout=1):
-        self.ser = None
-        if SERIAL_AVAILABLE:
-            try:
-                self.ser = serial.Serial(port, baudrate=baudrate, timeout=timeout)
-            except Exception as e:
-                print(f"[LoRaSender] Could not open serial port {port}: {e}", file=sys.stderr)
-                self.ser = None
-        else:
-            print("[LoRaSender] pyserial not installed; running in simulation mode", file=sys.stderr)
+    # … your existing __init__ …
 
-    def send(self, payload_bytes: bytes):
-        """
-        Send bytes out over LoRa (or simulate if no serial).
-        """
+    def send(self, event_obj):
+        # 1. generate unique ID
+        uid = uid_gen.next_id()
+
+        # 2. build your binary with that uid
+        packet = protocol.encode_event_with_uid(event_obj, uid)
+
+        # 3. cache for potential retries
+        store_event(uid, event_obj)
+
+        # 4. actually send/simulate
         if self.ser:
-            try:
-                self.ser.write(payload_bytes + b'\n')
-            except Exception as e:
-                print(f"[LoRaSender] Serial write failed: {e}", file=sys.stderr)
+            self.ser.write(packet + b'\n')
         else:
-            # Simulation fallback: just print
-            print(f"[LoRaSender] (simulated) payload → {payload_bytes!r}")
+            print(f"[LoRaSender] (simulated) payload → {packet!r}")

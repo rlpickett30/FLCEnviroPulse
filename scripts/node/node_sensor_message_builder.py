@@ -1,8 +1,7 @@
 # node_sensor_message_builder.py
 from node.node_weather_sampler import sample_weather
 from node.node_telemetry import process_telemetry
-from birdnet_edit import generate_avis_event
-
+from birdnet_edit import get_mock_birdnet_detection
 
 class SensorMessage:
     def __init__(self, sensor_type, content):
@@ -29,5 +28,5 @@ class SensorMessageBuilder:
 
     @staticmethod
     def build_avis(taxonomy_id, confidence, timestamp):
-        content = generate_avis_event(taxonomy_id, confidence, timestamp)
+        content = get_mock_birdnet_detection(taxonomy_id, confidence, timestamp)
         return SensorMessage("avis", content)
