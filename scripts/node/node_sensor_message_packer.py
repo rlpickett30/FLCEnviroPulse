@@ -5,29 +5,34 @@ from node.node_telemetry import process_telemetry
 from birdnet_edit import get_mock_birdnet_detection  # currently returns random detection
 
 class SensorMessage:
-    def __init__(self, sensor_type, content):
-        self.sensor_type = sensor_type  # e.g., "weather", "telemetry", "avis"
+    def __init__(self, sensor_type, content, target=None):
+        self.sensor_type = sensor_type
         self.content = content
+        self.target = target
 
     def to_dict(self):
-        return {
+        result = {
             "sensor_type": self.sensor_type,
             "data": self.content
         }
+        if self.target:
+            result["target"] = self.target
+        return result
+
 
 class SensorMessagePacker:
     @staticmethod
     def build_weather():
         content = sample_weather()
-        return SensorMessage("weather", content)
+        return SensorMessage("weather", content, target="send_over_lora")
 
     @staticmethod
     def build_telemetry():
         content = process_telemetry()
-        return SensorMessage("telemetry", content)
+        return SensorMessage("telemetry", content, target="send_over_lora")
 
     @staticmethod
     def build_avis():
-        # If you later want to pass args like taxonomy_id or confidence, update get_mock_birdnet_detection
         content = get_mock_birdnet_detection()
-        return SensorMessage("avis", content)
+        return SensorMessage("avis", content, target="send_over_lora")
+
