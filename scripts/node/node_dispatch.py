@@ -6,6 +6,7 @@ from node.node_mode_manager import ModeManager
 from node.node_ack_manager import AckManager
 from node.node_lora_message_builder import OutboundMessageBuilder
 from node.node_send_over_lora import LoRaSender
+from node.node_initial_launch import InitialLaunch
 
 class Dispatcher:
     def __init__(self):
@@ -21,7 +22,13 @@ class Dispatcher:
         # Log all events
         self.logger.log(constructed_event)
 
-        # Handle control events
+        # Handle event-specific actions
+        if event_type == "start_project":
+            updated = InitialLaunch(constructed_event.inbound).handle()
+            if updated:
+                self.handle_event(updated)
+            return
+
         if event_type == "Change Mode":
             self.mode_manager.update_mode(constructed_event.inbound)
 
@@ -42,7 +49,6 @@ class Dispatcher:
             lora_msg = self.outbound_builder.build(constructed_event)
             if lora_msg:
                 self.sender.send(lora_msg)
-
 
         # Handle telemetry timestamp update
         if event_type == "Telemetry Update":

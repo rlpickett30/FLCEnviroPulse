@@ -1,34 +1,31 @@
 # node_telemetry.py
 from node.node_hardware_manager import collect_sensor_data
-from node.node_altitude_calibrator import add_altitude_sample, add_pressure_sample, calibrate_altitude, calibrate_pressure_to_altitude
-from node.node_gps_calibrator import add_gps_sample, calibrate_coordinates
-
+from node.node_altitude_calibrator import (
+    calibrate_altitude
+)
+from node.node_gps_calibrator import (
+    calibrate_coordinates
+)
 
 def process_telemetry():
+    """Collects all sensor readings and returns calibrated telemetry."""
+
     data = collect_sensor_data()
+    gps_result = calibrate_coordinates()
+    alt_result = calibrate_altitude()
 
-    gps = data.get("gps", {})
-    bmp = data.get("bmp390", {})
-
-    # Feed raw readings into calibrators
-    add_altitude_sample(gps.get("altitude_m"))
-    add_pressure_sample(bmp.get("pressure"))
-    add_gps_sample(gps.get("latitude"), gps.get("longitude"))
-
-    # Create telemetry event dict
     telemetry = {
         "temperature_sht": data.get("sht31", {}).get("temperature"),
         "humidity": data.get("sht31", {}).get("humidity"),
-        "temperature_bmp": bmp.get("temperature"),
-        "pressure": bmp.get("pressure"),
-        "calibrated_altitude_gps": calibrate_altitude(),
-        "calibrated_altitude_baro": calibrate_pressure_to_altitude(),
-        "latitude": None,
-        "longitude": None,
+        "temperature_bmp": alt_result.get("temperature") if alt_result else None,
+        "pressure": alt_result.get("pressure") if alt_result else None,
+        "calibrated_altitude_baro": alt_result.get("altitude") if alt_result else None,
+        "calibrated_altitude_gps": gps_result.get("alt") if gps_result else None,
+        "latitude": gps_result.get("lat") if gps_result else None,
+        "longitude": gps_result.get("lon") if gps_result else None,
+        "hdop": gps_result.get("hdop") if gps_result else None,
+        "fix_type": gps_result.get("fix_type") if gps_result else None,
+        "num_satellites": gps_result.get("num_satellites") if gps_result else None,
     }
-
-    lat, lon = calibrate_coordinates()
-    telemetry["latitude"] = lat
-    telemetry["longitude"] = lon
 
     return telemetry

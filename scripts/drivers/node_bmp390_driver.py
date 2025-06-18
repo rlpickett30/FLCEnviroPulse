@@ -14,14 +14,34 @@ if IS_PI:
     bmp390.pressure_oversampling = 8
     bmp390.temperature_oversampling = 2
 else:
-    bmp390 = None
+    class MockBMP390:
+        def __init__(self):
+            self.samples = [
+                {"temperature": 20.9, "pressure": 1012.6},
+                {"temperature": 21.2, "pressure": 1012.8},
+                {"temperature": 21.0, "pressure": 1013.0},
+                {"temperature": 21.3, "pressure": 1012.9},
+                {"temperature": 21.1, "pressure": 1012.7},
+                {"temperature": 21.4, "pressure": 1012.6},
+                {"temperature": 21.2, "pressure": 1012.8},
+                {"temperature": 21.0, "pressure": 1013.1},
+                {"temperature": 21.3, "pressure": 1012.9},
+                {"temperature": 21.1, "pressure": 1012.7}
+            ]
+            self.index = 0
+
+        def update(self):
+            self.index = (self.index + 1) % len(self.samples)
+
+        def read(self):
+            self.update()
+            return self.samples[self.index]
+
+    bmp390 = MockBMP390()
 
 def read_bmp390():
     if not IS_PI or not bmp390:
-        return {
-            "temperature": 21.3,
-            "pressure": 1012.8
-        }
+        return bmp390.read()
 
     try:
         temperature = bmp390.temperature
@@ -32,3 +52,4 @@ def read_bmp390():
         }
     except Exception as e:
         return {"error": str(e)}
+

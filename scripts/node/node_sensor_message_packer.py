@@ -1,7 +1,8 @@
-# node_sensor_message_builder.py
+# node_sensor_message_packer.py
+
 from node.node_weather_sampler import sample_weather
 from node.node_telemetry import process_telemetry
-from birdnet_edit import get_mock_birdnet_detection
+from birdnet_edit import get_mock_birdnet_detection  # currently returns random detection
 
 class SensorMessage:
     def __init__(self, sensor_type, content):
@@ -14,8 +15,7 @@ class SensorMessage:
             "data": self.content
         }
 
-
-class SensorMessageBuilder:
+class SensorMessagePacker:
     @staticmethod
     def build_weather():
         content = sample_weather()
@@ -27,6 +27,7 @@ class SensorMessageBuilder:
         return SensorMessage("telemetry", content)
 
     @staticmethod
-    def build_avis(taxonomy_id, confidence, timestamp):
-        content = get_mock_birdnet_detection(taxonomy_id, confidence, timestamp)
+    def build_avis():
+        # If you later want to pass args like taxonomy_id or confidence, update get_mock_birdnet_detection
+        content = get_mock_birdnet_detection()
         return SensorMessage("avis", content)

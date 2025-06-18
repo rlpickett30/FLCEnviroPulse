@@ -48,3 +48,17 @@ def load_registry(new_dict):
 
 def get_registry():
     return REGISTRY
+
+def get_model_index(model_label=None):
+    """Return integer code for model, defaulting to first node if not provided."""
+    model_label = model_label or get_node_registry().get("node_type", "")
+    return REGISTRY.get("model_map", {}).get(model_label, -1)
+
+def get_taxonomy_version(label=None):
+    """Return integer code for taxonomy label."""
+    label = label or get_node_registry().get("taxonomy_version", "")
+    return REGISTRY.get("taxonomy_map", {}).get(label, -1)
+
+def get_uid():
+    """Return current node UID, if assigned."""
+    return get_node_registry().get("uid", 0)

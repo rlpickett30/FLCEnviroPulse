@@ -98,5 +98,16 @@
       { "name": "uid",         "type": "uint32", "bytes": 4 }
     ],
     "length_bytes": 13
+  },
+  
+  "start_project": {
+    "format": ">B I",
+    "description": "Triggers node startup sequence with globally unique event ID",
+    "fields": [
+      { "name": "event_type", "type": "uint8",  "bytes": 1 },
+      { "name": "uid",        "type": "uint32", "bytes": 4 }
+    ],
+    "length_bytes": 5
   }
+
 }
