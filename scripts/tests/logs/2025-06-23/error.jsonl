@@ -1,0 +1,4 @@
+{"error": "Map file not found: F:\\enviropulse\\config\\maps\\model_map.json", "event_type": "error", "gateway_header": {"timestamp": "2025-06-23T21:20:12.550470Z", "uid": "gateway_01"}, "raw_payload": "04000000030101010100000003"}
+{"error": "Map file not found: F:\\enviropulse\\config\\maps\\model_map.json", "event_type": "error", "gateway_header": {"timestamp": "2025-06-23T21:47:43.073028Z", "uid": "gateway_01"}, "raw_payload": "04000000030101010100000003"}
+{"error": "Map file not found: F:\\enviropulse\\config\\maps\\model_map.json", "event_type": "error", "gateway_header": {"timestamp": "2025-06-23T21:48:11.332869Z", "uid": "gateway_01"}, "raw_payload": "04000000030101010100000003"}
+{"error": "Map file not found: F:\\enviropulse\\config\\maps\\model_map.json", "event_type": "error", "gateway_header": {"timestamp": "2025-06-23T21:52:49.444615Z", "uid": "gateway_01"}, "raw_payload": "04000000030101010100000003"}

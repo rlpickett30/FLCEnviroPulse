@@ -1,0 +1,1 @@
+{"event_type": "change_mode", "gateway_header": {"gateway_id": null, "gateway_time": [2025, 6, 24, 21, 59, 41, 1, 175, 0], "uid": 1750802332}, "payload": {"mode": "avis_tdoa"}, "raw_payload": "", "server_header": {"uid": 1750802332}, "target": "send_over_lora", "uid": null}

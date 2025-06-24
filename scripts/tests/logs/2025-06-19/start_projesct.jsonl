@@ -1,0 +1,1 @@
+{"gateway_header": {"gateway_time": 1750371636.1133757, "gateway_id": null}, "raw_payload": null, "node_header": {"uid": 1750371633}, "event_type": "start_projesct", "payload": {"project_name": "Animas_Startup", "mode": "avis_lite"}, "target": "send_over_lora"}

@@ -1,0 +1,1 @@
+{"event_type": "avis_event", "gateway_header": {"timestamp": "2025-06-24T22:00:46.380322Z", "uid": "gateway_01"}, "node_header": {"node_id": 5, "node_time": 0, "uid": 4}, "payload": {"confidence": "75-80%", "event_type": 1, "taxonomy": "Buff-breasted Flycatcher", "timestamp": 4, "uid": 4}, "target": "unknown_target"}

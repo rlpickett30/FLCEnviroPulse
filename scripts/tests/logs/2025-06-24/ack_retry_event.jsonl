@@ -1,0 +1,1 @@
+{"event_type": "ack_retry_event", "gateway_header": {"timestamp": "2025-06-24T21:59:57.779974Z", "uid": "gateway_01"}, "node_header": {"node_id": 1, "node_time": 0, "uid": 4}, "payload": {"Sresponds_to": "telemetry_event", "event_type": 7, "type": "retry", "uid": 4}, "target": "ack_retry_manager"}
