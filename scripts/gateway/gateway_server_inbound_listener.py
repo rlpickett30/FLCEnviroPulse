@@ -4,8 +4,8 @@ import json
 import time
 from pathlib import Path
 
-from gateway_server_inbound_object_builder import build_server_event
-from gateway_object_constructor import construct_gateway_event
+from gateway.gateway_server_inbound_event_packer import ServerEventPacker
+from gateway.gateway_object_constructor import construct_gateway_event
 
 """
 Simulates listening to the server by reading JSON-formatted events from a file.
@@ -15,6 +15,7 @@ When your partner returns, replace the input with a socket, REST, or message que
 """
 
 SIMULATED_INPUT_PATH = "tests/simulated_server_input.json"
+packer = ServerEventPacker()  # Initialize once
 
 
 def listen_for_server_events():
@@ -30,12 +31,12 @@ def listen_for_server_events():
 
     for raw_event in events:
         try:
-            decoded = build_server_event(raw_event)
+            decoded = packer.build(raw_event)
             wrapped = construct_gateway_event(decoded)
             dispatch_server_event(wrapped)
         except Exception as e:
             print(f"Error handling server event: {e}")
-        time.sleep(1)  # Optional: space out simulated arrival
+        time.sleep(1)  # Optional: simulate spacing
 
 
 def dispatch_server_event(event):

@@ -1,7 +1,7 @@
 # gateway_sanity_check.py
 
 def sanity_check(event):
-    required_top_level = ["event_type", "node_header", "gateway_header"]
+    required_top_level = ["event_type"]
 
     for key in required_top_level:
         if key not in event:

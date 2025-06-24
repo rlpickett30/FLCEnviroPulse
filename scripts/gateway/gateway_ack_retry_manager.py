@@ -3,56 +3,67 @@
 import time
 import threading
 
-"""
-Tracks outbound events and handles retries if ACK not received.
+class PendingMessage:
+    def __init__(self, event_obj, encoded_bytes, timestamp=None, retries=0):
+        self.event_obj = event_obj
+        self.encoded_bytes = encoded_bytes
+        self.timestamp = timestamp or time.time()
+        self.retries = retries
 
-Every tracked event must include:
-- event_id (UID)
-- full_event object
-- timestamp
-- retry count
-
-Built-in retry loop runs in a background thread.
-"""
-
-MAX_RETRIES = 3
-RETRY_TIMEOUT = 2.5  # seconds
-RETRY_LOOP_INTERVAL = 1  # seconds
-
-_event_cache = {}
-_cache_lock = threading.Lock()
-_retry_thread = None
-_stop_event = threading.Event()
+    def increment_retry(self):
+        self.retries += 1
+        self.timestamp = time.time()
 
 
-def store_event(uid, event):
-    with _cache_lock:
-        _event_cache[uid] = {
-            "event": event,
-            "timestamp": time.time(),
-            "retry_count": 0,
-            "acknowledged": False
-        }
+class AckRetryManager:
+    def __init__(self, dispatcher, send_function, max_retries=3, retry_interval=2.5):
+        self.dispatcher = dispatcher
+        self.send_function = send_function
+        self.max_retries = max_retries
+        self.retry_interval = retry_interval
+        self.pending = {}  # uid: PendingMessage
+        self.lock = threading.Lock()
+        self.running = False
 
+    def start(self):
+        self.running = True
+        threading.Thread(target=self._retry_loop, daemon=True).start()
 
-def acknowledge_event(uid):
-    with _cache_lock:
-        if uid in _event_cache:
-            del _event_cache[uid]
+    def stop(self):
+        self.running = False
 
+    def register(self, uid, event_obj, encoded_bytes):
+        with self.lock:
+            self.pending[uid] = PendingMessage(event_obj, encoded_bytes)
 
-def get_retry_candidates():
-    now = time.time()
-    retry_list = []
+    def acknowledge(self, uid):
+        with self.lock:
+            if uid in self.pending:
+                del self.pending[uid]
 
-    with _cache_lock:
-        for uid, data in list(_event_cache.items()):
-            if data["acknowledged"]:
-                continue
+    def _retry_loop(self):
+        while self.running:
+            now = time.time()
+            retry_list = []
 
-            elapsed = now - data["timestamp"]
-            if elapsed > RETRY_TIMEOUT:
-                if data["retry_count"] < MAX_RETRIES:
-                    retry_list.append(uid)
-                    data["retry_count"] += 1
-                    data["timestamp"] = now  #
+            with self.lock:
+                for uid, message in list(self.pending.items()):
+                    if now - message.timestamp >= self.retry_interval:
+                        if message.retries < self.max_retries:
+                            retry_list.append((uid, message))
+                        else:
+                            self._handle_failure(uid, message)
+
+            for uid, message in retry_list:
+                message.increment_retry()
+                print(f"[GatewayAckRetry] Retry {message.retries} for UID {uid}")
+                self.send_function(message.encoded_bytes)
+
+            time.sleep(1)
+
+    def _handle_failure(self, uid, message):
+        print(f"[GatewayAckRetry] Max retries reached for UID {uid}. Dispatching failure event.")
+        fail_event = self.dispatcher.build_ack_retry_failure(message.event_obj)
+        self.send_function(fail_event.encode())
+        with self.lock:
+            del self.pending[uid]

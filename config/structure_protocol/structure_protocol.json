@@ -1,16 +1,15 @@
 {
   "ack_retry_event": {
-    "format": ">B I B B B I",
+    "format": ">B B B B I",
     "description": "ACK / Retry / Fail response message",
     "fields": [
       { "name": "event_type",   "type": "uint8",  "bytes": 1 },
-      { "name": "timestamp",    "type": "uint32", "bytes": 4 },
       { "name": "type",         "type": "uint8",  "bytes": 1, "map": "ack_retry_map.json" },
       { "name": "Sresponds_to",  "type": "uint8",  "bytes": 1, "map": "event_type_map.json" },
       { "name": "node_id",      "type": "uint8",  "bytes": 1 },
       { "name": "uid",          "type": "uint32", "bytes": 4 }
     ],
-    "length_bytes": 12
+    "length_bytes": 8
   },
 
   "telemetry_event": {
@@ -45,17 +44,14 @@
     ],
     "length_bytes": 22
   },
-
-
   
-  "init": {
-    "format": ">B I I",
+  "recalibrate": {
+    "format": ">B I ",
     "fields": [
       { "name": "event_type", "type": "uint8",  "bytes": 1 },
-      { "name": "timestamp",  "type": "uint32", "bytes": 4 },
       { "name": "uid",        "type": "uint32", "bytes": 4 }
     ],
-    "length_bytes": 9
+    "length_bytes": 5
   },
 
   "startup_ack": {
@@ -74,16 +70,14 @@
   },
 
   "change_mode": {
-    "format": ">B I B B I",
+    "format": "> B B I",
     "description": "Gateway instructs node to switch runtime mode",
     "fields": [
       { "name": "event_type", "type": "uint8",  "bytes": 1 },
-      { "name": "timestamp",  "type": "uint32", "bytes": 4 },
       { "name": "mode",       "type": "uint8",  "bytes": 1, "map": "mode_map.json" },
-      { "name": "node_id",    "type": "uint8",  "bytes": 1 },
       { "name": "uid",        "type": "uint32", "bytes": 4 }
     ],
-    "length_bytes": 11
+    "length_bytes": 6
   },
 
   "avis_event": {

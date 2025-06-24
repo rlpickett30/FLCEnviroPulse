@@ -6,5 +6,6 @@
   "startup_ack": 4,
   "init": 5,
   "change_mode": 6,
-  "ack_retry_event": 7
+  "ack_retry_event": 7,
+  "recalibrate": 8
 }

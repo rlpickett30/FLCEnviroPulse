@@ -1,11 +1,11 @@
 # node_mode_manager.py
 
-from node.node_initial_launch import InitialLauncher
+from node.node_initial_launch import InitialLaunch
 
 class ModeManager:
     def __init__(self):
         self.mode = "Avis Lite"  # Default mode
-        self.launcher = InitialLauncher()
+        self.launcher = InitialLaunch()
 
     def update_mode(self, inbound_payload):
         try:

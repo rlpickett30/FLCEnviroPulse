@@ -1,55 +1,70 @@
 # gateway_dispatcher.py
 
-from gateway.gateway_ack_retry_manager import store_event
-# from transmit import transmit_over_lora  # placeholder
-# from gateway_logger import log_event  # coming next
+from gateway.gateway_logger import GatewayLogger
+from gateway.gateway_push_to_server import ServerReceiver
+from gateway.gateway_send_over_lora import LoraOutboundSender
+from gateway.gateway_ack_retry_manager import AckRetryManager
 
 """
-This dispatcher receives any fully constructed event and routes it:
-- Stores it in the retry manager if it should be acknowledged
-- Logs the event to disk
-- Sends it via LoRa if outbound
-
-Assumes event already has:
-- gateway_header
-- node_header
-- event_type
-- payload
+This dispatcher routes finalized gateway events to their target subsystems.
+Each event is assumed to be fully constructed and validated.
 """
+
+# Instantiate subsystems
+logger = GatewayLogger()
+server = ServerReceiver()
+lora = LoraOutboundSender()
+
+# Ack manager requires binary payloads, so we register it after outbound encoding
+# Dispatcher must provide callback to build failure events
+ack_manager = AckRetryManager(dispatcher=None, send_function=lora.send)
+ack_manager.start()
+
 
 def dispatch_event(event):
-    uid = event["node_header"]["uid"]
-    event_type = event.get("event_type")
+    uid = event.get("gateway_header", {}).get("uid", "UID_MISSING")
+    raw_targets = event.get("target", "unknown")
 
-    # Log the event (placeholder)
-    log_event(event)
+    # Allow for multi-target delivery (e.g. "ack_retry_manager+push_to_server")
+    targets = raw_targets.split("+") if "+" in raw_targets else [raw_targets]
 
-    # Track outbound events (ACK-needed)
-    if is_ack_required(event_type):
-        store_event(uid, event)
+    for target in targets:
+        target = target.strip()
 
-    # Transmit if needed
-    if should_transmit(event_type):
-        transmit_over_lora(event)
+        if target == logger.get_target():
+            logger.log_event(event, stage="DISPATCH")
 
-    print(f"[DISPATCHED] Event UID {uid} type: {event_type}")
+        elif target == server.get_target():
+            server.receive_event(event)
+
+        elif target == lora.get_target():
+            lora.send(event)
+
+            # If event needs ack tracking, register it here
+            if is_ack_required(event["event_type"]):
+                try:
+                    from gateway.gateway_lora_outbound_object_builder import build_lora_payload
+                    encoded = build_lora_payload(event)
+                    ack_manager.register(uid, event, encoded)
+                except Exception as e:
+                    print(f"[ACK REGISTER ERROR] {e}")
+
+        elif target == "ack_retry_manager":
+            uid = (
+                event.get("uid") or
+                event.get("gateway_header", {}).get("uid")
+            )
+            ack_manager.acknowledge(uid)
+
+        else:
+            print(f"[DISPATCH WARNING] Unknown target: {target}")
+    print(f"[DISPATCHED] Event UID {uid} type: {event['event_type']} → {raw_targets}")
 
 
 def is_ack_required(event_type):
-    # Define which events require ACK tracking
-    return event_type in {"telemetry", "weather", "avis_lite", "avis_tdoa"}
-
-
-def should_transmit(event_type):
-    # Define which events trigger outbound sending
     return event_type in {"telemetry", "avis_lite", "avis_tdoa"}
 
 
-def transmit_over_lora(event):
-    # Placeholder: Replace with actual transmission function
-    print(f"[SEND] Transmitting event UID {event['node_header']['uid']}")
-
-
-def log_event(event):
-    # Placeholder: Real logger will write to file
-    print(f"[LOG] Event UID {event['node_header']['uid']} logged.")
+# Optional for graceful shutdown (e.g. on SIGINT)
+def stop_dispatcher():
+    ack_manager.stop()

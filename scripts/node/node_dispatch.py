@@ -3,8 +3,8 @@
 from node.node_logger import Logger
 from node.node_time import get_timestamp
 from node.node_mode_manager import ModeManager
-from node.node_ack_manager import AckManager
-from node.node_lora_message_builder import OutboundMessageBuilder
+from node.node_ack_retry_manager import AckRetryManager
+from node.node_lora_outbound_message_packer import OutboundMessageBuilder
 from node.node_send_over_lora import LoRaSender
 from node.node_initial_launch import InitialLaunch
 
@@ -12,7 +12,7 @@ class Dispatcher:
     def __init__(self):
         self.logger = Logger()
         self.mode_manager = ModeManager()
-        self.ack_manager = AckManager()
+        self.ack_manager = AckRetryManager()
         self.outbound_builder = OutboundMessageBuilder()
         self.sender = LoRaSender()
 

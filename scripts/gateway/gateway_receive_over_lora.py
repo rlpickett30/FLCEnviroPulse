@@ -1,18 +1,35 @@
 # gateway_receive_over_lora.py
 
-try:
-    from drivers.rak2287_driver import receive_packet as receive_lora_packet
-except ImportError:
-    from tests.gateway_inbound_sim import receive_packet as receive_lora_packet
+import os
+import sys
+import time
+import threading
 
-"""
-This wrapper module ensures that the gateway can receive LoRa packets
-using either the real RAK2287 hardware interface or a simulator fallback.
 
-To use simulation mode, ensure `drivers.rak2287_driver` is unavailable or commented out,
-and implement `receive_packet()` in `tests.gateway_inbound_sim.py`.
+# Set up project root for relative imports
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
-Usage:
-    from gateway_receive_over_lora import receive_lora_packet
-    data = receive_lora_packet()
-"""
+# Core system import
+from gateway.gateway_lora_packet_source import receive_packet as receive_lora_packet
+
+
+
+def listen_for_lora_packets():
+    print("[LORA LISTENER] Started.")
+    while True:
+        print("[LOOP] About to call receive_packet()")
+        packet = receive_lora_packet()
+
+        if packet is None:
+            time.sleep(0.1)
+            continue
+
+        print(f"[LOOP] Raw packet received: {packet.hex()}")
+
+if __name__ == "__main__":
+    threading.Thread(target=listen_for_lora_packets, daemon=True).start()
+    while True:
+        time.sleep(1)

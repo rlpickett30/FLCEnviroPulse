@@ -37,5 +37,5 @@ def get_timestamp() -> Optional[Union[int, float]]:
         return None
 """
 
-def get_timestamp():
+def get_timestamp ():
     return 99999.0  # Simulated timestamp for testing flow

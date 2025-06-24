@@ -1,48 +1,35 @@
-# gateway_object_constructor.py
-
-from gateway.gateway_base_object import build_base_event, ensure_uid
+from gateway.gateway_heading_wrapper import HeadingWrapper
 
 """
-This module merges inbound LoRa or server events with a base event structure.
-The base event attaches a gateway header and ensures UID assignment where missing.
-
-Expected input:
-- decoded_event: an object from lora or server builder (dict with node_header + payload)
-
-Returns:
-- fully constructed event with gateway header and complete node_header
+Wraps decoded inbound events from LoRa or server into a complete gateway object,
+attaching a gateway timestamp and collecting UIDs from node/server headers.
 """
 
-def construct_gateway_event(decoded_event):
-    # Wrap it with base gateway header and raw payload preserved
-    base_wrapped = build_base_event(decoded_event.get("raw_payload", b''))
+class GatewayEventConstructor:
+    def __init__(self):
+        self.wrapper = HeadingWrapper()
 
-    # Transfer other headers/payload into the base wrapper
-    base_wrapped.update({
-        "node_header": decoded_event.get("node_header", {}),
-        "event_type": decoded_event.get("event_type"),
-        "payload": decoded_event.get("payload", {})
-    })
+    def construct(self, decoded_event):
+        # Build base with gateway metadata (time + ID)
+        base_wrapped = self.wrapper.build_base_event(decoded_event.get("raw_payload", b""))
 
-    # Ensure UID is attached
-    full_event = ensure_uid(base_wrapped)
+        # Reattach node_header or server_header if present
+        if "node_header" in decoded_event:
+            base_wrapped["node_header"] = decoded_event["node_header"]
+        if "server_header" in decoded_event:
+            base_wrapped["server_header"] = decoded_event["server_header"]
 
-    return full_event
+        # Merge remaining core fields
+        base_wrapped.update({
+            "uid": decoded_event.get("uid"),
+            "event_type": decoded_event.get("event_type"),
+            "payload": decoded_event.get("payload", {}),
+            "target": decoded_event.get("target", "unknown")
+        })
+        
+        # Finalize gateway header with UID collection
+        full_event = self.wrapper.attach_gateway_header(base_wrapped)
+#        print("object_constructor")
+#        print (full_event)
+        return full_event
 
-
-# Example usage
-if __name__ == "__main__":
-    # Simulated decoded inbound object
-    fake_decoded = {
-        "node_header": {
-            "node_id": 3,
-            "node_time": 12345678
-        },
-        "event_type": "telemetry",
-        "payload": {"temperature": 18, "humidity": 30},
-        "raw_payload": b"\x03\x00..."  # Optional binary
-    }
-
-    event = construct_gateway_event(fake_decoded)
-    from pprint import pprint
-    pprint(event)
